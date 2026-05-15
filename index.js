@@ -10,8 +10,20 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const JWT_SECRET = process.env.JWT_SECRET; 
 
-app.use(cors());
 app.use(express.json());
+
+// Fix CORS - Allow your frontend port
+app.use(cors({
+  origin: "http://localhost:5173",
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+  credentials: true
+}));
+
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.url}`);
+  next();
+});
+
 
 // database connection
 async function main() {
@@ -43,15 +55,49 @@ app.get("/", (req, res) => {
   res.json({ connected: "you are on the home page " });
 });
 
+app.get("/test", (req, res) => {
+  res.json({ message: "Backend working" });
+});
 // Signup
+// app.post("/api/signup", async (req, res) => {
+//   try {
+//     const { name, email, password } = req.body;
+//     const hashed = await bcrypt.hash(password, 10);
+//     const user = await UserModel.create({ name, email, password: hashed });
+//     res.json({ message: "User created successfully", user });
+//   } catch (err) {
+//     res.status(400).json({ error: err.message });
+//   }
+// });
+
+
 app.post("/api/signup", async (req, res) => {
+  console.log("Signup route hit");
+  console.log(req.body);
+
   try {
     const { name, email, password } = req.body;
+
     const hashed = await bcrypt.hash(password, 10);
-    const user = await UserModel.create({ name, email, password: hashed });
-    res.json({ message: "User created successfully", user });
+
+    const user = await UserModel.create({
+      name,
+      email,
+      password: hashed,
+    });
+
+    res.json({
+      message: "User created successfully",
+      user,
+    });
+
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    console.log("SIGNUP ERROR:");
+    console.log(err);
+
+    res.status(500).json({
+      error: err.message,
+    });
   }
 });
 
