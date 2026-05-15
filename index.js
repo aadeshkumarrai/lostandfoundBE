@@ -14,7 +14,10 @@ app.use(express.json());
 
 // Fix CORS - Allow your frontend port
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: [
+    "http://localhost:5173",
+    "lost-and-found-frontend-zeta.vercel.app"
+  ],
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   credentials: true
 }));
